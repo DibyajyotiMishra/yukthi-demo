@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 
 import React, {Component} from 'react';
-import {Button, Text, View} from 'react-native';
+import {StyleSheet, Button, Text, View} from 'react-native';
 import {RNCamera} from 'react-native-camera';
 import Axios from 'axios';
 
@@ -13,10 +13,6 @@ class App extends Component {
     this.data = '';
 
     this.state = {
-      camera: {
-        type: RNCamera.Constants.Type.back,
-        flashMode: RNCamera.Constants.FlashMode.auto,
-      },
       sugars: '',
     };
   }
@@ -28,7 +24,6 @@ class App extends Component {
     if (scanResult.data != null) {
       if (!this.barcodeCodes.includes(scanResult.data)) {
         this.barcodeCodes.push(scanResult.data);
-        // console.log('onBarCodeRead call');
       }
     }
     return;
@@ -37,8 +32,6 @@ class App extends Component {
   async fetchData() {
     let Barcode = this.data;
     // let Barcode = '8908006077410';
-
-    //console.log(this.data == barcode);
     const res = await Axios.post(
       'https://palm-surf-hellebore.glitch.me/food/barcode',
       {barcode: Barcode},
@@ -52,18 +45,6 @@ class App extends Component {
     return Barcode;
   }
 
-  async takePicture() {
-    if (this.camera) {
-      const options = {quality: 0.5, base64: true};
-      const data = await this.camera.takePictureAsync(options);
-      console.log(data.uri);
-    }
-  }
-
-  barcodeRecognized = ({barcodes}) => {
-    barcodes.forEach(barcode => console.log(barcode));
-  };
-
   render() {
     return (
       <View style={styles.container}>
@@ -71,8 +52,9 @@ class App extends Component {
           ref={ref => {
             this.camera = ref;
           }}
+          type={RNCamera.Constants.Type.back}
           defaultTouchToFocus
-          flashMode={this.state.camera.flashMode}
+          flashMode={RNCamera.Constants.FlashMode.auto}
           mirrorImage={false}
           onBarCodeRead={this.onBarCodeRead.bind(this)}
           androidCameraPermissionOptions={{
@@ -82,7 +64,6 @@ class App extends Component {
             buttonNegative: 'No',
           }}
           style={styles.preview}
-          type={this.state.camera.type}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <Text style={styles.resultMessage}>
@@ -105,7 +86,7 @@ class App extends Component {
   }
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -147,6 +128,6 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
-};
+});
 
 export default App;
